@@ -1,25 +1,47 @@
 export const getCSRFToken = async () => {
 	let res: Response
 
-	try {
-		res = await fetch('https://auth.roblox.com/v2/logout', {
-			method: 'POST',
-			headers: {
-				cookie: `.ROBLOXSECURITY=${ROBLOX_COOKIE}`,
-			},
-		})
-	} catch (err) {
-		console.log('hihi')
-		console.log(err)
-		throw 'idk'
-	}
-
-	const token = res.headers.get('x-csrf-token')
+  res = await fetch('https://auth.roblox.com/v2/logout', {
+    method: 'POST',
+    headers: {
+      cookie: `.ROBLOSECURITY=${ROBLOX_COOKIE}`,
+    },
+  })
+  
+  const token = res.headers.get('x-csrf-token')
+  
 	if (!token) {
 		throw new Error('invalid csrf token')
 	}
 
 	return token
+}
+
+export const setUserRank = async (groupId: number, userId: number, rank: number) => {
+	const roleSet = await getRoleSet(groupId, rank)
+	
+  const body = {
+    roleId: roleSet.id
+	}
+	
+	const csrf = await getCSRFToken()
+
+  const url = `https://groups.roblox.com/v1/groups/${groupId}/users/${userId}`
+  const init: RequestInit = {
+		body: JSON.stringify(body),
+		method: "PATCH",
+		headers: {
+			"content-type": "application/json",
+			"X-CSRF-TOKEN": csrf,
+			cookie: `.ROBLOSECURITY=${ROBLOX_COOKIE}`,
+		}
+	}
+	
+	const res = await fetch(url, init)
+
+	if (res.status !== 200) {
+		throw "failed to promote user"
+	}
 }
 
 interface GroupRole {
@@ -33,25 +55,24 @@ interface GroupRoles {
 	roles: Array<GroupRole>
 }
 
-export const getRoleName = async (groupId: number, roleId: number) => {
+export const getRoleSet = async (groupId: number, rank: number) => {
 	const groupRolesRes = await fetch(
 		`https://groups.roblox.com/v1/groups/${groupId}/roles`,
 	)
 
-	const contentType = groupRolesRes.headers.get('content-type') || ''
-	if (!contentType.includes('application/json')) {
-		return '<API Error 1>'
-	}
+  if (groupRolesRes.status !== 200) {
+    throw "invalid group"
+  }
 
 	const data: GroupRoles = await groupRolesRes.json()
 
 	for (const role of data.roles) {
-		if (role.rank === roleId) {
-			return role.name
+		if (role.rank === rank) {
+			return role
 		}
 	}
 
-	return '<API Error 2>'
+	throw "invalid roleset"
 }
 
 interface RobloxUser {

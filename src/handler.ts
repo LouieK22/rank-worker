@@ -1,4 +1,4 @@
-import { getCSRFToken, getRoleName, getUserName } from './roblox'
+import { getRoleSet, getUserName, setUserRank } from './roblox'
 
 interface RequestBody {
 	groupId: number
@@ -20,8 +20,9 @@ export async function handleRequest(request: Request): Promise<Response> {
 	const bodyData: RequestBody = await request.json()
 
 	const username = await getUserName(bodyData.userId)
-	const roleName = await getRoleName(bodyData.groupId, bodyData.newRank)
-	const csrf = await getCSRFToken()
+	const role = await getRoleSet(bodyData.groupId, bodyData.newRank)
+  
+  await setUserRank(bodyData.groupId, bodyData.userId, bodyData.newRank)
 
-	return new Response(`username: ${username}, role: ${roleName}, csrf: ${csrf}`)
+	return new Response(`username: ${username}, role: ${role.name}`)
 }
