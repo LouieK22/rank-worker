@@ -1,4 +1,4 @@
-# roblox-rank-worker
+# rank-worker
 
 Simple Cloudflare Worker that exposes an API to change a player's rank in a group on the Roblox site.
 
