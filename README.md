@@ -2,7 +2,7 @@
 
 Simple Cloudflare Worker that exposes an API to change a player's rank in a group on the Roblox site.
 
-Handy for use in games where Roblox *still* doesn't expose an API for changing player roles.
+Handy for use in games because Roblox *still* doesn't expose an API for changing player roles.
 
 ## Setup
 1. Set appropriate configs in `wrangler.toml`. See the [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/get-started/guide#7-configure-your-project-for-deployment) for more information
